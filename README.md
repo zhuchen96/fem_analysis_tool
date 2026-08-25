@@ -2,12 +2,11 @@
 
 This folder makes eleven videos out of the fem simulation files: the
 tissue at every timepoint gets split into three regions (front half of the
-neuromast, back half of the neuromast, and the reference tissue)
+neuromast, back half of the neuromast, and the reference)
 
 Everything here reads straight from the simulation output (`.vtu` mesh
 files) and the raw microscopy stack (`.tif` files) and writes a finished
-`.mp4`. No intermediate CSVs, no multi-step build process — one script in,
-one video out.
+`.mp4`. No intermediate CSVs, no multi-step build process.
 
 ## The three regions, briefly
 
@@ -60,7 +59,7 @@ Then, from inside this folder:
 
 ```bash
 conda env create -f environment.yml
-conda activate neuromast_pipeline
+conda activate fem_analysis
 ```
 
 That installs numpy, scipy, scikit-image, matplotlib, pyvista/vtk,
@@ -73,7 +72,7 @@ files — it ships its own ffmpeg binary, you don't need to separately
 The scripts expect this layout, relative to this folder:
 
 ```
-neuromast_pipeline/
+fem_analysis_pipeline/
 ├── wildtyp_sample2_with_growth/     <- you provide this (simulation output)
 │   ├── sim_1.vtu
 │   ├── sim_2.vtu
@@ -90,11 +89,7 @@ neuromast_pipeline/
 ```
 
 **If you're working with the same sample this repo was built from**, the
-three generated files are already committed (they're tiny, a few KB each —
-per-frame measurements specific to this sample, not the bulky kind of
-data). You just need to link in the raw data itself — about 12 GB of
-`.tif` stacks and `.vtu` meshes, plus a 73 MB mask file, all too big for
-git:
+three generated files are already committed
 
 ```bash
 ln -s /path/to/your/wildtyp_sample2_with_growth  wildtyp_sample2_with_growth
@@ -102,15 +97,9 @@ ln -s /path/to/your/"Time series_flipped"        "Time series_flipped"
 ln -s /path/to/your/smoothed_boundary.npz         smoothed_boundary.npz
 ```
 
-**If this is a brand new sequence** (different embryo, different imaging
-session), none of the generated files exist yet — see section 4 below,
+**If this is a brand new sequence** , none of the generated files exist yet — see section 4 below,
 "Setting up a new sequence", which walks through producing all four of
 them from just the raw `.tif`/`.vtu` data.
-
-Either way, note the scripts only ever look at frames 55 through 230 for
-this sample (whatever range is covered by the tracked midline/apical-point
-data) — you don't strictly need earlier frames of the tif/vtu series for
-the videos, but it doesn't hurt to keep them.
 
 ## 3. Running it
 
@@ -166,8 +155,7 @@ scripts in section 3 will work exactly the same way they do here.
 | `setup/pick_seed_points.py` | not part of the pipeline — a helper for finding the landmark points `config.py` needs |
 | `setup/_dataset.py`, `setup/_smoothing.py` | not scripts you run — small shared helpers the numbered scripts import (frame counting, the mask-smoothing math) |
 
-Most of that runs unattended. The one part that doesn't: `config.py` needs
-two points clicked on an image by a person, since there's no automatic way
+`config.py` needs two points clicked on an image by a person, since there's no automatic way
 to know where this particular structure's front and back landmarks are.
 Open it and read through the comments — it explains what each value means
 and how to find it, in particular:

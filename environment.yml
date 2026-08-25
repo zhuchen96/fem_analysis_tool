@@ -1,4 +1,4 @@
-name: neuromast_pipeline
+name: fem_analysis
 channels:
   - conda-forge
 dependencies:
