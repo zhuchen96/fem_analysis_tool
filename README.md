@@ -157,13 +157,14 @@ scripts in section 3 will work exactly the same way they do here.
 | script | what it makes |
 |---|---|
 | `setup/config.py` | not a script — the handful of numbers that need a human to look at the images and decide (see below) |
-| `setup/01_segment_masks.py` | raw microscopy → a rough per-frame mask of the structure |
+| `setup/01_segment_masks.py` | raw microscopy → a rough per-frame mask of the structure, `raw_masks.npy` |
 | `setup/02_smooth_boundary.py` | cleans that mask up through time → `smoothed_boundary.npz` |
-| `setup/03_track_landmarks.py` | tracks two landmark points backward through time from a chosen frame |
+| `setup/03_track_landmarks.py` | tracks two landmark points backward through time from a chosen frame → `tracked_points_backward_v2.npz` |
 | `setup/04_build_midline.py` | the two landmarks' midpoint, extended across all frames → `groups_by_midline/midline.npz` |
 | `setup/05_build_apical_point.py` | one of the two landmarks on its own → `groups_by_midline/apical_point.npz` |
 | `setup/06_migration_direction.py` | net migration direction, from the tissue centroid's trajectory → `migration_direction.npz` |
 | `setup/pick_seed_points.py` | not part of the pipeline — a helper for finding the landmark points `config.py` needs |
+| `setup/_dataset.py`, `setup/_smoothing.py` | not scripts you run — small shared helpers the numbered scripts import (frame counting, the mask-smoothing math) |
 
 Most of that runs unattended. The one part that doesn't: `config.py` needs
 two points clicked on an image by a person, since there's no automatic way
@@ -190,6 +191,13 @@ or run the six numbered scripts one at a time if you want to check the
 output of each step before moving on — each one prints its own progress
 and tells you which script to run next. `01` and `03` are the slow ones
 (reading every raw frame); the rest are quick.
+
+One easy-to-miss detail: `setup/config.py` has its own copy of `SPACING_XY`
+(micron per pixel), and so does `groups.py` at the repo root. If a new
+sequence was imaged at a different resolution, update it in **both**
+places — they're kept separate on purpose (you shouldn't need `setup/` at
+all if you already have the four generated files), but that means nothing
+will warn you if they drift apart.
 
 ## Troubleshooting
 
