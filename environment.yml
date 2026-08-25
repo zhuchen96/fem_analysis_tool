@@ -1,0 +1,16 @@
+name: neuromast_pipeline
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - scikit-image
+  - matplotlib
+  - pyvista
+  - vtk
+  - tifffile
+  - imageio
+  - pip
+  - pip:
+      - imageio-ffmpeg
