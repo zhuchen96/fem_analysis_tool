@@ -14,7 +14,9 @@ Run from the repo root:
 Needs tracked_points_backward_v2.npz (step 3). Writes
 groups_by_midline/apical_point.npz.
 """
-import os
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
 
 from config import SPACING_XY, T_START, FIT_WINDOW, RESULT_DIR

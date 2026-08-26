@@ -31,7 +31,7 @@ padded out by 5 µm first (the "expanded mask" variants).
 
 | script | what it makes |
 |---|---|
-| `config.py` | not a script — set `SAMPLE_ID` here to switch between samples (see section 2) |
+| `config.py` | not a script — set `SAMPLE_ID` and sample-specific parameters here; used by all scripts |
 | `groups.py` | the shared helper the other 12 scripts import, decides which region a point is in |
 | `make_overlay_video_plain.py` | all mesh nodes as white dots on the raw microscopy image, no region split |
 | `make_overlay_video.py` | the three regions plotted on top of the actual microscopy image, frame by frame |
@@ -169,7 +169,6 @@ video scripts in section 3 will work exactly the same way.
 
 | script | what it makes |
 |---|---|
-| `setup/config.py` | not a script — the handful of numbers that need a human to look at the images and decide (see below) |
 | `setup/01_segment_masks.py` | raw microscopy → a rough per-frame mask of the structure, `result_sampleN/raw_masks.npy` |
 | `setup/02_smooth_boundary.py` | cleans that mask up through time → `result_sampleN/smoothed_boundary.npz` |
 | `setup/03_track_landmarks.py` | tracks two landmark points backward through time from a chosen frame → `result_sampleN/tracked_points_backward_v2.npz` |
@@ -179,12 +178,11 @@ video scripts in section 3 will work exactly the same way.
 | `setup/pick_seed_points.py` | not part of the pipeline — a helper for finding the landmark points `setup/config.py` needs |
 | `setup/_dataset.py`, `setup/_smoothing.py` | not scripts you run — small shared helpers the numbered scripts import (frame counting, the mask-smoothing math) |
 
-Before running setup for a new sample, set `SAMPLE_ID` in both config files:
+Before running setup for a new sample, edit `config.py` (repo root — the
+only config file): set `SAMPLE_ID`, and fill in `SEED_FRAME`,
+`SEED_POINTS_XY`, and `T_START` for the new sample.
 
-1. `config.py` (repo root) — used by `groups.py` and all `make_*_video.py` scripts
-2. `setup/config.py` — used by the `setup/` scripts; also fill in `SEED_FRAME`, `SEED_POINTS_XY`, `T_START`
-
-`setup/config.py` needs two points clicked on an image by a person, since
+`config.py` needs two points clicked on an image by a person, since
 there's no automatic way to know where this particular structure's front and
 back landmarks are. Open it and read through the comments, then run:
 
@@ -208,9 +206,8 @@ output of each step before moving on — each one prints its own progress
 and tells you which script to run next. `01` and `03` are the slow ones
 (reading every raw frame); the rest are quick.
 
-Two easy-to-miss sync points:
-- `SAMPLE_ID` must match between `config.py` and `setup/config.py`.
-- `SPACING_XY` (micron per pixel) lives in both `config.py` and `setup/config.py`. If a new sequence was imaged at a different resolution, update it in **both** — nothing will warn you if they drift apart.
+All parameters live in a single `config.py` at the repo root — there is no
+separate `setup/config.py` any more.
 
 ## Troubleshooting
 
@@ -233,8 +230,8 @@ Two easy-to-miss sync points:
   `pip install --force-reinstall imageio-ffmpeg` inside the activated
   environment.
 - **`setup/04_build_midline.py` prints a WARNING about landmark order** —
-  `setup/config.py`'s `SEED_POINTS_XY` has the two points backward. Point 0
-  needs to be the one further toward the reference side (larger x).
+  `config.py`'s `SEED_POINTS_XY` has the two points backward. Point 0 needs
+  to be the one further toward the reference side (larger x).
 - **`setup/06_migration_direction.py` fails to import `groups`** — it needs
   to be run from the repo root (`python setup/06_migration_direction.py`),
   not from inside `setup/`.

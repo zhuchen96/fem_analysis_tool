@@ -10,6 +10,9 @@ Run from the repo root:
 Needs raw_masks.npy (from step 1). Writes smoothed_boundary.npz to the repo
 root - this is one of the files the main pipeline (groups.py) reads.
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
 from config import RESULT_DIR
 from _smoothing import smooth_masks_through_time

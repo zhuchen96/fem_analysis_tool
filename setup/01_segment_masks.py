@@ -14,6 +14,9 @@ Run from the repo root:
 
 Writes raw_masks.npy to the repo root.
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
 import tifffile
 from scipy import ndimage

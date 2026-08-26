@@ -14,6 +14,9 @@ Run from the repo root:
 
 Writes tracked_points_backward_v2.npz to the repo root.
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
 import tifffile
 from skimage.feature import match_template

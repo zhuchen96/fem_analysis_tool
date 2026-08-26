@@ -14,7 +14,9 @@ the reference side and one toward the neuromast side, and drop both plus
 the frame number into config.py. Try a couple of different frame numbers if
 the first one you check doesn't look clean.
 """
-import sys
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
 import tifffile
 import matplotlib
