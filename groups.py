@@ -26,18 +26,19 @@ get_regions() for the second one.
 import numpy as np
 from skimage.morphology import binary_dilation, disk
 
-SPACING_XY = 0.325  # micron per pixel - the value the whole pipeline is built around
+from config import RESULT_DIR, SPACING_XY
+
 GAP_UM = 20 * SPACING_XY  # ~6.5um, the midline dead zone (20px, chosen early on and kept ever since)
 MARGIN_UM = 5.0
 MARGIN_PX = int(round(MARGIN_UM / SPACING_XY))
 
-_masks = np.load("smoothed_boundary.npz")["smoothed_masks"]
+_masks = np.load(f"{RESULT_DIR}/smoothed_boundary.npz")["smoothed_masks"]
 IMG_H, IMG_W = _masks.shape[1:]
 
-_mid = np.load("groups_by_midline/midline.npz")
+_mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
 _mid_x_by_frame = dict(zip(_mid["frames"].astype(int).tolist(), _mid["mid_x_um"].astype(float).tolist()))
 
-_apical = np.load("groups_by_midline/apical_point.npz")
+_apical = np.load(f"{RESULT_DIR}/groups_by_midline/apical_point.npz")
 _apical_x_by_frame = dict(zip(_apical["frames"].astype(int).tolist(), _apical["apical_x_um"].astype(float).tolist()))
 
 _dilated_mask_cache = {}

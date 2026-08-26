@@ -13,6 +13,11 @@ that need you to actually look at an image).
 # pipeline - if you change it here for a new sequence, change it there too.
 SPACING_XY = 0.325
 
+SAMPLE_ID  = 1         # keep in sync with root config.py
+MESH_DIR   = f"wildtyp_sample2_with_growth_sample{SAMPLE_ID}"
+TIF_DIR    = f"Time series_flipped_sample{SAMPLE_ID}"
+RESULT_DIR = f"result_sample{SAMPLE_ID}"
+
 # --- the two tracked landmarks -----------------------------------------
 #
 # Two points get template-matched backward through time, starting from a

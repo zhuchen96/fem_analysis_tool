@@ -20,10 +20,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from skimage.morphology import binary_dilation, disk
 
-MESH_DIR = "wildtyp_sample2_with_growth"
-TIF_DIR = "Time series_flipped"
-FRAME_DIR = "overlay_groups_by_midline_growth"
-VIDEO_OUT = "overlay_groups_by_midline_growth.mp4"
+from config import MESH_DIR, TIF_DIR, RESULT_DIR
+
+FRAME_DIR = f"{RESULT_DIR}/overlay_groups_by_midline_growth"
+VIDEO_OUT = f"{RESULT_DIR}/overlay_groups_by_midline_growth.mp4"
 
 SPACING_XY = 0.325
 MARGIN_UM = 5.0
@@ -37,10 +37,10 @@ ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
 ref_xy = ref_mesh.points[:, :2]
 control_ids = np.where((ref_xy[:, 1] < CONTROL_Y_LOW) | (ref_xy[:, 1] > CONTROL_Y_HIGH))[0]
 
-masks = np.load("smoothed_boundary.npz")["smoothed_masks"]
+masks = np.load(f"{RESULT_DIR}/smoothed_boundary.npz")["smoothed_masks"]
 img_h, img_w = masks.shape[1:]
 
-mid = np.load("groups_by_midline/midline.npz")
+mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
 frames = mid["frames"].astype(int)
 mid_x_of = dict(zip(frames.tolist(), mid["mid_x_um"].astype(float).tolist()))
 extrap = mid["is_extrapolated"] if "is_extrapolated" in mid.files else np.zeros(len(frames), dtype=bool)

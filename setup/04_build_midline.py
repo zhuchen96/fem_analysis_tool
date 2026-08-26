@@ -23,15 +23,15 @@ frame that has mesh data.
 import os
 import numpy as np
 
-from config import SPACING_XY, T_START, FIT_WINDOW
+from config import SPACING_XY, T_START, FIT_WINDOW, RESULT_DIR
 from _dataset import vtu_frame_count
 
-OUT_DIR = "groups_by_midline"
+OUT_DIR = f"{RESULT_DIR}/groups_by_midline"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 LAST_FRAME = vtu_frame_count()
 
-d = np.load("tracked_points_backward_v2.npz")
+d = np.load(f"{RESULT_DIR}/tracked_points_backward_v2.npz")
 traj_xy = d["traj_xy"]  # (2, seed_frame, 2) px, indexed [t-1]
 seed_frame = int(d["seed_frame"])
 

@@ -28,13 +28,12 @@ import pyvista as pv
 # groups.py lives one folder up, at the repo root, not inside setup/
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from groups import get_regions
-
-MESH_DIR = "wildtyp_sample2_with_growth"
+from config import MESH_DIR, RESULT_DIR  # root config.py
 
 ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
 ref_xy = ref_mesh.points[:, :2]
 
-mid = np.load("groups_by_midline/midline.npz")
+mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
 frames = mid["frames"].astype(int)
 
 cx, cy = [], []
@@ -67,5 +66,5 @@ vec2 = np.array([cx[-1] - cx[0], cy[-1] - cy[0]])
 angle2 = np.degrees(np.arctan2(vec2[1], vec2[0]))
 print(f"endpoint-to-endpoint angle for comparison: {angle2:.1f} deg")
 
-np.savez("migration_direction.npz", angle_deg=angle, unit=unit, method="centroid_position_linregress")
-print("saved migration_direction.npz - setup is done, the 11 video scripts in the repo root are ready to run")
+np.savez(f"{RESULT_DIR}/migration_direction.npz", angle_deg=angle, unit=unit, method="centroid_position_linregress")
+print(f"saved {RESULT_DIR}/migration_direction.npz - setup is done, the make_*_video.py scripts in the repo root are ready to run")

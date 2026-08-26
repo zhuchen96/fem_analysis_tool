@@ -8,6 +8,8 @@ import glob
 import re
 import tifffile
 
+from config import MESH_DIR, TIF_DIR
+
 
 def _max_index(pattern):
     numbers = [int(re.search(r"(\d+)", path.rsplit("/", 1)[-1]).group(1))
@@ -18,13 +20,13 @@ def _max_index(pattern):
 
 
 def tif_frame_count():
-    return _max_index("Time series_flipped/T_*.tif")
+    return _max_index(f"{TIF_DIR}/T_*.tif")
 
 
 def vtu_frame_count():
-    return _max_index("wildtyp_sample2_with_growth/sim_*.vtu")
+    return _max_index(f"{MESH_DIR}/sim_*.vtu")
 
 
 def tif_image_shape():
-    stack = tifffile.imread("Time series_flipped/T_1.tif")
+    stack = tifffile.imread(f"{TIF_DIR}/T_1.tif")
     return stack.max(axis=0).shape

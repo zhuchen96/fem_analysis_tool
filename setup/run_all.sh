@@ -14,5 +14,5 @@ python setup/05_build_apical_point.py
 python setup/06_migration_direction.py
 
 echo
-echo "all set - smoothed_boundary.npz, groups_by_midline/*.npz, and migration_direction.npz are ready."
+echo "all set - outputs are in result_sampleN/ (see config.py for SAMPLE_ID)."
 echo "you can now run any of the make_*_video.py scripts in the repo root."

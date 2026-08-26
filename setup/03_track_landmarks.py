@@ -18,7 +18,7 @@ import numpy as np
 import tifffile
 from skimage.feature import match_template
 
-from config import SEED_FRAME, SEED_POINTS_XY
+from config import SEED_FRAME, SEED_POINTS_XY, TIF_DIR, RESULT_DIR
 
 TEMPLATE_RADIUS = 20
 SEARCH_MARGIN = 20
@@ -26,7 +26,7 @@ SCORE_FLOOR = 0.4  # match confidence below this means the point has drifted off
 
 
 def load_mip(t):
-    stack = tifffile.imread(f"Time series_flipped/T_{t}.tif")
+    stack = tifffile.imread(f"{TIF_DIR}/T_{t}.tif")
     return stack.max(axis=0).astype(np.float32)
 
 
@@ -129,8 +129,8 @@ if __name__ == "__main__":
         for t, s in scores.items():
             traj_score[p, t - 1] = s
 
-    np.savez("tracked_points_backward_v2.npz",
+    np.savez(f"{RESULT_DIR}/tracked_points_backward_v2.npz",
              seed_frame=SEED_FRAME, seed_points_xy=np.array(SEED_POINTS_XY),
              traj_xy=traj_xy, traj_score=traj_score,
              stop_frame=np.array([s if s is not None else -1 for s in stop_frames]))
-    print("saved tracked_points_backward_v2.npz - run setup/04_build_midline.py next")
+    print(f"saved {RESULT_DIR}/tracked_points_backward_v2.npz - run setup/04_build_midline.py next")

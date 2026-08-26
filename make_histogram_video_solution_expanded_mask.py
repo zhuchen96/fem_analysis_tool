@@ -13,10 +13,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from groups import get_regions
+from config import MESH_DIR, RESULT_DIR
 
-MESH_DIR = "wildtyp_sample2_with_growth"
-FRAME_DIR = "angle_histograms_solution_expanded_mask"
-VIDEO_OUT = "angle_histograms_solution_expanded_mask.mp4"
+FRAME_DIR = f"{RESULT_DIR}/angle_histograms_solution_expanded_mask"
+VIDEO_OUT = f"{RESULT_DIR}/angle_histograms_solution_expanded_mask.mp4"
 FIELD = "solution"
 EXPANDED = True
 N_BINS = 24
@@ -34,10 +34,10 @@ os.makedirs(FRAME_DIR, exist_ok=True)
 ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
 ref_xy = ref_mesh.points[:, :2]
 
-mid = np.load("groups_by_midline/midline.npz")
+mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
 frames = mid["frames"].astype(int)
 
-mig = np.load("migration_direction.npz")
+mig = np.load(f"{RESULT_DIR}/migration_direction.npz")
 ux, uy = mig["unit"]
 px, py = -uy, ux
 

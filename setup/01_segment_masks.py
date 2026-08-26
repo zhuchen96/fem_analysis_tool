@@ -21,6 +21,7 @@ from skimage.filters import gaussian, threshold_otsu, apply_hysteresis_threshold
 from skimage.morphology import remove_small_objects, closing, disk
 from skimage.measure import label, regionprops
 
+from config import RESULT_DIR, TIF_DIR
 from _dataset import tif_frame_count, tif_image_shape
 
 N_FRAMES = tif_frame_count()
@@ -85,11 +86,13 @@ if __name__ == "__main__":
     print(f"segmenting {N_FRAMES} frames ({IMG_H}x{IMG_W} px each)...")
     raw_masks = np.zeros((N_FRAMES, IMG_H, IMG_W), dtype=bool)
     for i in range(1, N_FRAMES + 1):
-        stack = tifffile.imread(f"Time series_flipped/T_{i}.tif")
+        stack = tifffile.imread(f"{TIF_DIR}/T_{i}.tif")
         mip = stack.max(axis=0)
         raw_masks[i - 1] = segment_frame(mip)
         if i % 20 == 0 or i == 1:
             print(f"  frame {i}: {raw_masks[i - 1].sum()} px detected")
 
-    np.save("raw_masks.npy", raw_masks)
-    print("saved raw_masks.npy - run setup/02_smooth_boundary.py next")
+    import os
+    os.makedirs(RESULT_DIR, exist_ok=True)
+    np.save(f"{RESULT_DIR}/raw_masks.npy", raw_masks)
+    print(f"saved {RESULT_DIR}/raw_masks.npy - run setup/02_smooth_boundary.py next")

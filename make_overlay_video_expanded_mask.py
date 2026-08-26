@@ -15,11 +15,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from groups import get_regions, GAP_UM, SPACING_XY
+from config import MESH_DIR, TIF_DIR, RESULT_DIR
 
-MESH_DIR = "wildtyp_sample2_with_growth"
-TIF_DIR = "Time series_flipped"
-FRAME_DIR = "overlay_groups_by_midline_expanded_mask"
-VIDEO_OUT = "overlay_groups_by_midline_expanded_mask.mp4"
+FRAME_DIR = f"{RESULT_DIR}/overlay_groups_by_midline_expanded_mask"
+VIDEO_OUT = f"{RESULT_DIR}/overlay_groups_by_midline_expanded_mask.mp4"
 EXPANDED = True
 
 CONTROL_Y_LOW = 40.0
@@ -31,13 +30,13 @@ ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
 ref_xy = ref_mesh.points[:, :2]
 control_ids = np.where((ref_xy[:, 1] < CONTROL_Y_LOW) | (ref_xy[:, 1] > CONTROL_Y_HIGH))[0]
 
-mid = np.load("groups_by_midline/midline.npz")
+mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
 frames = mid["frames"].astype(int)
 mid_x_of = dict(zip(frames.tolist(), mid["mid_x_um"].astype(float).tolist()))
 extrap = mid["is_extrapolated"] if "is_extrapolated" in mid.files else np.zeros(len(frames), dtype=bool)
 mid_extrap_of = dict(zip(frames.tolist(), extrap.tolist()))
 
-apical = np.load("groups_by_midline/apical_point.npz")
+apical = np.load(f"{RESULT_DIR}/groups_by_midline/apical_point.npz")
 apical_x_of = dict(zip(apical["frames"].astype(int).tolist(), apical["apical_x_um"].astype(float).tolist()))
 apical_extrap_of = dict(zip(apical["frames"].astype(int).tolist(), apical["is_extrapolated"].tolist()))
 

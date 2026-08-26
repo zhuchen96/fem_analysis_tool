@@ -21,11 +21,13 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from config import TIF_DIR
+
 if len(sys.argv) != 2:
     sys.exit("usage: python setup/pick_seed_points.py <frame number>")
 
 t = int(sys.argv[1])
-stack = tifffile.imread(f"Time series_flipped/T_{t}.tif")
+stack = tifffile.imread(f"{TIF_DIR}/T_{t}.tif")
 mip = stack.max(axis=0)
 h, w = mip.shape
 

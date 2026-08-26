@@ -17,15 +17,15 @@ groups_by_midline/apical_point.npz.
 import os
 import numpy as np
 
-from config import SPACING_XY, T_START, FIT_WINDOW
+from config import SPACING_XY, T_START, FIT_WINDOW, RESULT_DIR
 from _dataset import vtu_frame_count
 
-OUT_DIR = "groups_by_midline"
+OUT_DIR = f"{RESULT_DIR}/groups_by_midline"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 LAST_FRAME = vtu_frame_count()
 
-d = np.load("tracked_points_backward_v2.npz")
+d = np.load(f"{RESULT_DIR}/tracked_points_backward_v2.npz")
 traj_xy = d["traj_xy"]
 seed_frame = int(d["seed_frame"])
 
