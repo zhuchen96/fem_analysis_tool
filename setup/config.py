@@ -14,8 +14,8 @@ that need you to actually look at an image).
 SPACING_XY = 0.325
 
 SAMPLE_ID  = 1         # keep in sync with root config.py
-MESH_DIR   = f"wildtyp_sample2_with_growth_sample{SAMPLE_ID}"
-TIF_DIR    = f"Time series_flipped_sample{SAMPLE_ID}"
+MESH_DIR   = f"vtu_files_sample{SAMPLE_ID}"
+TIF_DIR    = f"tif_files_sample{SAMPLE_ID}"
 RESULT_DIR = f"result_sample{SAMPLE_ID}"
 
 # --- the two tracked landmarks -----------------------------------------
