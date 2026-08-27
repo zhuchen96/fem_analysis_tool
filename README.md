@@ -8,6 +8,86 @@ Everything here reads straight from the simulation output (`.vtu` mesh
 files) and the raw microscopy stack (`.tif` files) and writes a finished
 `.mp4`. No intermediate CSVs, no multi-step build process.
 
+## Quick start
+
+**1. Activate the environment**
+```bash
+conda activate fem_analysis
+```
+
+**2. Put your data in place**
+
+Name your folders following the `sampleN` convention and set `SAMPLE_ID` in `config.py`:
+```bash
+ln -s /path/to/vtu_files   vtu_files_sample1
+ln -s /path/to/tif_files   tif_files_sample1
+```
+```python
+# config.py
+SAMPLE_ID = 1
+```
+
+**3. Run the plain overlay video**
+
+This overlays all mesh nodes on the raw microscopy images with no region split — use it to check that the mesh and images are aligned before going further:
+```bash
+python make_overlay_video_plain.py
+# output: result_sample1/overlay_plain.mp4
+```
+
+**4. Pick a seed frame for landmark tracking**
+
+Choose a late frame where the neuromast has clearly split into two lobes. Generate a pixel-grid image to read off coordinates:
+```bash
+python setup/pick_seed_points.py 204
+# saves setup/seed_frame_204.png — open it and read off two (x, y) coordinates
+```
+Set `SEED_FRAME` in `config.py` to the frame number you chose.
+
+**5. Set the landmark coordinates in config**
+
+Open `setup/seed_frame_N.png`. Pick two points:
+- point 0: the **reference-side** landmark (larger x)
+- point 1: the **apical constriction point** toward the neuromast side (smaller x)
+
+```python
+# config.py
+SEED_POINTS_XY = [
+    (884, 183),  # reference-side landmark
+    (601, 189),  # apical constriction point
+]
+```
+
+**6. Set the start frame**
+
+This is the earliest frame where the two landmarks are clearly separated. Look at the plain overlay video from step 3 to judge — if unsure, run setup step 03 first and check how far back it tracked.
+```python
+# config.py
+T_START = 55
+```
+
+**7. Run the setup chain**
+```bash
+bash setup/run_all.sh
+# produces result_sample1/smoothed_boundary.npz, groups_by_midline/*.npz, migration_direction.npz
+```
+
+**8. Generate all videos**
+```bash
+for f in make_overlay_video_plain.py \
+         make_overlay_video.py make_overlay_video_expanded_mask.py make_overlay_video_growth.py \
+         make_histogram_video_solution.py make_histogram_video_solution_expanded_mask.py \
+         make_histogram_video_stress.py make_histogram_video_stress_expanded_mask.py \
+         make_vector_video_solution.py make_vector_video_solution_expanded_mask.py \
+         make_vector_video_stress.py make_vector_video_stress_expanded_mask.py; do
+    echo "=== $f ==="
+    python "$f"
+done
+# all outputs in result_sample1/
+```
+
+---
+
 ## The three regions, briefly
 
 For a given frame, a mesh point's *current* (deformed) x-position decides
