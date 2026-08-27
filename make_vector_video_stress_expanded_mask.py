@@ -37,7 +37,7 @@ mean_vec = {r: {a: [] for a in AXES} for r in REGIONS}
 for t in frames:
     t = int(t)
     mesh = pv.read(f"{MESH_DIR}/sim_{t}.vtu")
-    cur_xy = ref_xy + np.asarray(mesh.point_data["solution"])[:, :2]
+    cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
     field = np.asarray(mesh.point_data[FIELD])
 
     left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)

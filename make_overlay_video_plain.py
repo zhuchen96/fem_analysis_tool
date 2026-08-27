@@ -30,7 +30,7 @@ writer = imageio.get_writer(VIDEO_OUT, fps=12)
 
 for t in frames:
     mesh = pv.read(f"{MESH_DIR}/sim_{t}.vtu")
-    cur_xy = ref_xy + np.asarray(mesh.point_data["solution"])[:, :2]
+    cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
 
     stack = tifffile.imread(f"{TIF_DIR}/T_{t}.tif")
     mip = stack.max(axis=0)
