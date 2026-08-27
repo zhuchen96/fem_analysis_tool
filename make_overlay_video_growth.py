@@ -20,7 +20,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from skimage.morphology import binary_dilation, disk
 
-from config import MESH_DIR, TIF_DIR, RESULT_DIR
+from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME
 
 FRAME_DIR = f"{RESULT_DIR}/overlay_groups_by_midline_growth"
 VIDEO_OUT = f"{RESULT_DIR}/overlay_groups_by_midline_growth.mp4"
@@ -41,10 +41,11 @@ masks = np.load(f"{RESULT_DIR}/smoothed_boundary.npz")["smoothed_masks"]
 img_h, img_w = masks.shape[1:]
 
 mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
-frames = mid["frames"].astype(int)
-mid_x_of = dict(zip(frames.tolist(), mid["mid_x_um"].astype(float).tolist()))
-extrap = mid["is_extrapolated"] if "is_extrapolated" in mid.files else np.zeros(len(frames), dtype=bool)
-mid_extrap_of = dict(zip(frames.tolist(), extrap.tolist()))
+_all_frames = mid["frames"].astype(int)
+mid_x_of = dict(zip(_all_frames.tolist(), mid["mid_x_um"].astype(float).tolist()))
+_extrap = mid["is_extrapolated"] if "is_extrapolated" in mid.files else np.zeros(len(_all_frames), dtype=bool)
+mid_extrap_of = dict(zip(_all_frames.tolist(), _extrap.tolist()))
+frames = _all_frames[(_all_frames >= T_START) & (_all_frames <= SEED_FRAME)]
 
 writer = imageio.get_writer(VIDEO_OUT, fps=12)
 

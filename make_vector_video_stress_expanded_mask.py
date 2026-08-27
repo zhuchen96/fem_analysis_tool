@@ -10,18 +10,19 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from groups import get_regions
-from config import MESH_DIR, RESULT_DIR
+from config import MESH_DIR, RESULT_DIR, T_START, SEED_FRAME
 
 FRAME_DIR = f"{RESULT_DIR}/vector_arrows_pk1_stess_3_expanded_mask"
 VIDEO_OUT = f"{RESULT_DIR}/vector_arrows_pk1_stess_3_expanded_mask.mp4"
 FIELD = "pk1_stess_3"
 EXPANDED = True
 
-REGIONS = ["neuromast_left", "neuromast_right", "reference"]
+REGIONS = ["neuromast_left", "neuromast_right", "reference", "whole_neuromast"]
 REGION_LABEL = {
     "neuromast_left": "neuromast, front half",
     "neuromast_right": "neuromast, back half",
     "reference": "reference tissue",
+    "whole_neuromast": "whole neuromast",
 }
 AXES = ["x", "y", "z"]
 
@@ -32,6 +33,7 @@ ref_xy = ref_mesh.points[:, :2]
 
 mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
 frames = mid["frames"].astype(int)
+frames = frames[(frames >= T_START) & (frames <= SEED_FRAME)]
 
 mean_vec = {r: {a: [] for a in AXES} for r in REGIONS}
 for t in frames:
@@ -41,7 +43,8 @@ for t in frames:
     field = np.asarray(mesh.point_data[FIELD])
 
     left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
-    ids_of = {"neuromast_left": left, "neuromast_right": right, "reference": ref}
+    ids_of = {"neuromast_left": left, "neuromast_right": right, "reference": ref,
+              "whole_neuromast": np.concatenate([left, right])}
 
     for r in REGIONS:
         ids = ids_of[r]
@@ -61,7 +64,7 @@ for a in AXES:
 writer = imageio.get_writer(VIDEO_OUT, fps=12)
 for i, t in enumerate(frames):
     t = int(t)
-    fig, axes = plt.subplots(3, 3, figsize=(12, 9))
+    fig, axes = plt.subplots(4, 3, figsize=(12, 12))
     for row, r in enumerate(REGIONS):
         for col, a in enumerate(AXES):
             ax = axes[row, col]

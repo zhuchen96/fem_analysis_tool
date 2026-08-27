@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from config import MESH_DIR, TIF_DIR, RESULT_DIR
+from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME
 
 FRAME_DIR = f"{RESULT_DIR}/overlay_plain"
 VIDEO_OUT = f"{RESULT_DIR}/overlay_plain.mp4"
@@ -21,7 +21,7 @@ frames = sorted(
     int(re.search(r"(\d+)", os.path.basename(p)).group(1))
     for p in glob.glob(f"{MESH_DIR}/sim_*.vtu")
 )
-frames = [t for t in frames if t >= 1]
+frames = [t for t in frames if T_START <= t <= SEED_FRAME]
 
 ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
 ref_xy = ref_mesh.points[:, :2]

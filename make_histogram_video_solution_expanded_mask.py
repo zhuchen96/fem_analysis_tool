@@ -2,7 +2,7 @@
 Same as make_histogram_video_solution.py, just with the segmentation mask
 grown out by 5um before deciding whether a point is inside the embryo (see
 groups.py / MARGIN_UM). Everything else - the field, the migration-frame
-rotation, the stable-pair filtering - is identical.
+rotation - is identical.
 """
 import os
 import numpy as np
@@ -13,7 +13,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from groups import get_regions
-from config import MESH_DIR, RESULT_DIR
+from config import MESH_DIR, RESULT_DIR, T_START, SEED_FRAME
 
 FRAME_DIR = f"{RESULT_DIR}/angle_histograms_solution_expanded_mask"
 VIDEO_OUT = f"{RESULT_DIR}/angle_histograms_solution_expanded_mask.mp4"
@@ -21,11 +21,12 @@ FIELD = "solution"
 EXPANDED = True
 N_BINS = 24
 
-REGIONS = ["neuromast_left", "neuromast_right", "reference"]
+REGIONS = ["neuromast_left", "neuromast_right", "reference", "whole_neuromast"]
 REGION_LABEL = {
     "neuromast_left": "neuromast, front half",
     "neuromast_right": "neuromast, back half",
     "reference": "reference tissue",
+    "whole_neuromast": "whole neuromast",
 }
 PLANES = [("M vs P", 0, 1), ("M vs Z", 0, 2), ("P vs Z", 1, 2)]
 
@@ -36,6 +37,7 @@ ref_xy = ref_mesh.points[:, :2]
 
 mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
 frames = mid["frames"].astype(int)
+frames = frames[(frames >= T_START) & (frames <= SEED_FRAME)]
 
 mig = np.load(f"{RESULT_DIR}/migration_direction.npz")
 ux, uy = mig["unit"]
@@ -49,7 +51,6 @@ def to_migration_frame(vecs):
 
 
 writer = imageio.get_writer(VIDEO_OUT, fps=12)
-prev_ids = None
 
 for t in frames:
     t = int(t)
@@ -58,16 +59,14 @@ for t in frames:
     field_mig = to_migration_frame(np.asarray(mesh.point_data[FIELD]))
 
     left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
-    cur_ids = {"neuromast_left": set(left), "neuromast_right": set(right), "reference": set(ref)}
+    cur_ids = {"neuromast_left": np.array(sorted(left), dtype=int),
+               "neuromast_right": np.array(sorted(right), dtype=int),
+               "reference": np.array(sorted(ref), dtype=int)}
+    cur_ids["whole_neuromast"] = np.concatenate([cur_ids["neuromast_left"], cur_ids["neuromast_right"]])
 
-    if prev_ids is None:
-        stable = {r: np.array([], dtype=int) for r in REGIONS}
-    else:
-        stable = {r: np.array(sorted(cur_ids[r] & prev_ids[r]), dtype=int) for r in REGIONS}
-
-    fig, axes = plt.subplots(3, 3, subplot_kw={"projection": "polar"}, figsize=(12, 11.5))
+    fig, axes = plt.subplots(4, 3, subplot_kw={"projection": "polar"}, figsize=(12, 15))
     for row, r in enumerate(REGIONS):
-        ids = stable[r]
+        ids = cur_ids[r]
         vecs = field_mig[ids] if len(ids) else np.zeros((0, 3))
         for col, (plane_name, a, b) in enumerate(PLANES):
             ax = axes[row, col]
@@ -91,10 +90,8 @@ for t in frames:
     plt.close(fig)
     writer.append_data(imageio.imread(frame_path))
 
-    prev_ids = cur_ids
     if t % 20 == 0 or t == frames[0] or t == frames[-1]:
-        print(f"t={t}: stable points - "
-              + " ".join(f"{r}={len(stable[r])}" for r in REGIONS))
+        print(f"t={t}: n = " + " ".join(f"{r}={len(cur_ids[r])}" for r in REGIONS))
 
 writer.close()
 print(f"wrote {VIDEO_OUT}")
