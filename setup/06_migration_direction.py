@@ -28,9 +28,9 @@ import pyvista as pv
 # groups.py lives one folder up, at the repo root, not inside setup/
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from groups import get_regions
-from config import MESH_DIR, RESULT_DIR  # root config.py
+from config import MESH_DIR, RESULT_DIR, TIF_START, VTU_START  # root config.py
 
-ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
+ref_mesh = pv.read(f"{MESH_DIR}/sim_{VTU_START}.vtu")
 ref_xy = ref_mesh.points[:, :2]
 
 mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
@@ -39,7 +39,7 @@ frames = mid["frames"].astype(int)
 cx, cy = [], []
 for t in frames:
     t = int(t)
-    mesh = pv.read(f"{MESH_DIR}/sim_{t}.vtu")
+    mesh = pv.read(f"{MESH_DIR}/sim_{t - TIF_START + VTU_START}.vtu")
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
 
     left, right, ref = get_regions(t, cur_xy, expanded=False)

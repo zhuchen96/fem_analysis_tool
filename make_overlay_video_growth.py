@@ -20,7 +20,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from skimage.morphology import binary_dilation, disk
 
-from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME
+from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME, TIF_START, VTU_START
 
 FRAME_DIR = f"{RESULT_DIR}/overlay_groups_by_midline_growth"
 VIDEO_OUT = f"{RESULT_DIR}/overlay_groups_by_midline_growth.mp4"
@@ -33,7 +33,7 @@ CONTROL_Y_HIGH = 90.0
 
 os.makedirs(FRAME_DIR, exist_ok=True)
 
-ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
+ref_mesh = pv.read(f"{MESH_DIR}/sim_{VTU_START}.vtu")
 ref_xy = ref_mesh.points[:, :2]
 control_ids = np.where((ref_xy[:, 1] < CONTROL_Y_LOW) | (ref_xy[:, 1] > CONTROL_Y_HIGH))[0]
 
@@ -51,13 +51,13 @@ writer = imageio.get_writer(VIDEO_OUT, fps=12)
 
 for t in frames:
     t = int(t)
-    mesh = pv.read(f"{MESH_DIR}/sim_{t}.vtu")
+    mesh = pv.read(f"{MESH_DIR}/sim_{t - TIF_START + VTU_START}.vtu")
     growth = np.asarray(mesh.point_data["growth"])[:, :2]
     cur_xy = ref_xy + growth
 
     col = (cur_xy[:, 0] / SPACING_XY).round().astype(int).clip(0, img_w - 1)
     row = (cur_xy[:, 1] / SPACING_XY).round().astype(int).clip(0, img_h - 1)
-    mask = binary_dilation(masks[t - 1], disk(MARGIN_PX))
+    mask = binary_dilation(masks[t - TIF_START], disk(MARGIN_PX))
     inside = np.where(mask[row, col])[0]
 
     mid_x = mid_x_of[t]

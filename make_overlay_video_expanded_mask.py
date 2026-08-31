@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from groups import get_regions, GAP_UM, SPACING_XY
-from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME
+from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME, TIF_START, VTU_START
 
 FRAME_DIR = f"{RESULT_DIR}/overlay_groups_by_midline_expanded_mask"
 VIDEO_OUT = f"{RESULT_DIR}/overlay_groups_by_midline_expanded_mask.mp4"
@@ -26,7 +26,7 @@ CONTROL_Y_HIGH = 90.0
 
 os.makedirs(FRAME_DIR, exist_ok=True)
 
-ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
+ref_mesh = pv.read(f"{MESH_DIR}/sim_{VTU_START}.vtu")
 ref_xy = ref_mesh.points[:, :2]
 control_ids = np.where((ref_xy[:, 1] < CONTROL_Y_LOW) | (ref_xy[:, 1] > CONTROL_Y_HIGH))[0]
 
@@ -45,7 +45,7 @@ writer = imageio.get_writer(VIDEO_OUT, fps=12)
 
 for t in frames:
     t = int(t)
-    mesh = pv.read(f"{MESH_DIR}/sim_{t}.vtu")
+    mesh = pv.read(f"{MESH_DIR}/sim_{t - TIF_START + VTU_START}.vtu")
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
 
     left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
@@ -64,13 +64,15 @@ for t in frames:
     ax.scatter(cur_xy[ref, 0], cur_xy[ref, 1], s=1.5, c="crimson", alpha=0.8, linewidths=0)
 
     mid_x = mid_x_of[t]
-    ax.axvspan(mid_x - GAP_UM, mid_x + GAP_UM, color="magenta", alpha=0.2, zorder=0.5)
-    ax.axvline(mid_x - GAP_UM, color="magenta", linewidth=0.9, linestyle=":")
+    ax.axvspan(mid_x, mid_x + GAP_UM, color="magenta", alpha=0.2, zorder=0.5)
+    ax.axvline(mid_x, color="magenta", linewidth=0.9, linestyle=":")
     ax.axvline(mid_x + GAP_UM, color="magenta", linewidth=0.9, linestyle=":")
     ax.axvline(mid_x, color=("magenta" if mid_extrap_of[t] else "white"), linewidth=1.2, linestyle="--")
 
     apical_x = apical_x_of[t]
+    left_cutoff_x = apical_x - (mid_x - apical_x)
     ax.axvline(apical_x, color=("yellow" if apical_extrap_of[t] else "cyan"), linewidth=1.2, linestyle="--")
+    ax.axvline(left_cutoff_x, color=("yellow" if apical_extrap_of[t] else "dodgerblue"), linewidth=0.9, linestyle=":")
 
     ax.axhline(CONTROL_Y_LOW, color="lime", linewidth=0.6, linestyle=":")
     ax.axhline(CONTROL_Y_HIGH, color="lime", linewidth=0.6, linestyle=":")

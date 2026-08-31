@@ -11,7 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from groups import get_regions
-from config import MESH_DIR, RESULT_DIR, T_START, SEED_FRAME
+from config import MESH_DIR, RESULT_DIR, T_START, SEED_FRAME, TIF_START, VTU_START, AXIS_LIMITS
 
 FRAME_DIR = f"{RESULT_DIR}/vector_arrows_solution_expanded_mask"
 VIDEO_OUT = f"{RESULT_DIR}/vector_arrows_solution_expanded_mask.mp4"
@@ -20,8 +20,8 @@ EXPANDED = True
 
 REGIONS = ["neuromast_left", "neuromast_right", "reference", "whole_neuromast"]
 REGION_LABEL = {
-    "neuromast_left": "neuromast, front half",
-    "neuromast_right": "neuromast, back half",
+    "neuromast_left": "neuromast, left",
+    "neuromast_right": "neuromast, right",
     "reference": "reference tissue",
     "whole_neuromast": "whole neuromast",
 }
@@ -29,7 +29,7 @@ AXES = ["x", "y", "z"]
 
 os.makedirs(FRAME_DIR, exist_ok=True)
 
-ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
+ref_mesh = pv.read(f"{MESH_DIR}/sim_{VTU_START}.vtu")
 ref_xy = ref_mesh.points[:, :2]
 
 mid = np.load(f"{RESULT_DIR}/groups_by_midline/midline.npz")
@@ -39,7 +39,7 @@ frames = frames[(frames >= T_START) & (frames <= SEED_FRAME)]
 mean_vec = {r: {a: [] for a in AXES} for r in REGIONS}
 for t in frames:
     t = int(t)
-    mesh = pv.read(f"{MESH_DIR}/sim_{t}.vtu")
+    mesh = pv.read(f"{MESH_DIR}/sim_{t - TIF_START + VTU_START}.vtu")
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
     field = np.asarray(mesh.point_data[FIELD])
 
@@ -61,6 +61,13 @@ for a in AXES:
     vals = np.concatenate([np.array(mean_vec[r][a]) for r in REGIONS])
     vals = vals[np.isfinite(vals)]
     axis_limit[a] = np.nanmax(np.abs(vals)) * 1.15 if len(vals) else 1.0
+_cfg = AXIS_LIMITS.get(FIELD, {})
+for a in AXES:
+    if _cfg.get(a) is not None:
+        axis_limit[a] = _cfg[a]
+print(f"computed axis limits for {FIELD}: "
+      + ", ".join(f"{a}={axis_limit[a]:.4g}" for a in AXES)
+      + "  (set AXIS_LIMITS in config.py to fix across samples)")
 
 writer = imageio.get_writer(VIDEO_OUT, fps=12)
 for i, t in enumerate(frames):

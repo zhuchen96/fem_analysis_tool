@@ -1,12 +1,12 @@
 # fem analysis pipeline
 
-This folder makes twelve videos out of the fem simulation files: the
-tissue at every timepoint gets split into three regions (front half of the
-neuromast, back half of the neuromast, and the reference)
+This folder analyses the FEM simulation files: the tissue at every timepoint
+gets split into three regions (left half of the neuromast, right half of the
+neuromast, and the reference). It produces twelve videos and curve figures
+summarising per-region field values over time.
 
 Everything here reads straight from the simulation output (`.vtu` mesh
-files) and the raw microscopy stack (`.tif` files) and writes a finished
-`.mp4`. No intermediate CSVs, no multi-step build process.
+files) and the raw microscopy stack (`.tif` files).
 
 ## Quick start
 
@@ -72,14 +72,15 @@ bash setup/run_all.sh
 # produces result_sample1/smoothed_boundary.npz, groups_by_midline/*.npz, migration_direction.npz
 ```
 
-**8. Generate all videos**
+**8. Generate all videos and figures**
 ```bash
 for f in make_overlay_video_plain.py \
          make_overlay_video.py make_overlay_video_expanded_mask.py make_overlay_video_growth.py \
          make_histogram_video_solution.py make_histogram_video_solution_expanded_mask.py \
          make_histogram_video_stress.py make_histogram_video_stress_expanded_mask.py \
          make_vector_video_solution.py make_vector_video_solution_expanded_mask.py \
-         make_vector_video_stress.py make_vector_video_stress_expanded_mask.py; do
+         make_vector_video_stress.py make_vector_video_stress_expanded_mask.py \
+         make_curves.py make_curves_stress_magnitude.py; do
     echo "=== $f ==="
     python "$f"
 done
@@ -125,6 +126,8 @@ padded out by 5 µm first (the "expanded mask" variants).
 | `make_vector_video_solution_expanded_mask.py` | same, padded mask |
 | `make_vector_video_stress.py` | same arrow layout, averaging `pk1_stess_3` instead |
 | `make_vector_video_stress_expanded_mask.py` | same, padded mask |
+| `make_curves.py` | per-point x/y/z CSVs and mean±std curve figures for `solution` and `pk1_stess_3` (one PNG per field, three panels: x / y / z vs time, four region curves each) |
+| `make_curves_stress_magnitude.py` | per-point magnitude CSVs and a single mean±std curve figure for `\|pk1_stess_3\|` over time, four regions |
 
 Each `make_*_video.py` script is standalone — you can run any one of them
 on its own, in any order.
@@ -219,7 +222,7 @@ so) and, when it finishes, writes into `result_sample{N}/`:
 - a subfolder of individual PNG frames (e.g. `result_sample1/overlay_groups_by_midline/`)
 - the finished video next to it (e.g. `result_sample1/overlay_groups_by_midline.mp4`)
 
-You can run all twelve back to back if you want everything at once:
+You can run all scripts back to back if you want everything at once:
 
 ```bash
 for f in make_overlay_video_plain.py \
@@ -227,7 +230,8 @@ for f in make_overlay_video_plain.py \
          make_histogram_video_solution.py make_histogram_video_solution_expanded_mask.py \
          make_histogram_video_stress.py make_histogram_video_stress_expanded_mask.py \
          make_vector_video_solution.py make_vector_video_solution_expanded_mask.py \
-         make_vector_video_stress.py make_vector_video_stress_expanded_mask.py; do
+         make_vector_video_stress.py make_vector_video_stress_expanded_mask.py \
+         make_curves.py make_curves_stress_magnitude.py; do
     echo "=== $f ==="
     python "$f"
 done

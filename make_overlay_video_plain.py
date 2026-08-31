@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME
+from config import MESH_DIR, TIF_DIR, RESULT_DIR, T_START, SEED_FRAME, TIF_START, VTU_START
 
 FRAME_DIR = f"{RESULT_DIR}/overlay_plain"
 VIDEO_OUT = f"{RESULT_DIR}/overlay_plain.mp4"
@@ -19,17 +19,17 @@ os.makedirs(FRAME_DIR, exist_ok=True)
 
 frames = sorted(
     int(re.search(r"(\d+)", os.path.basename(p)).group(1))
-    for p in glob.glob(f"{MESH_DIR}/sim_*.vtu")
+    for p in glob.glob(f"{TIF_DIR}/T_*.tif")
 )
 frames = [t for t in frames if T_START <= t <= SEED_FRAME]
 
-ref_mesh = pv.read(f"{MESH_DIR}/sim_1.vtu")
+ref_mesh = pv.read(f"{MESH_DIR}/sim_{VTU_START}.vtu")
 ref_xy = ref_mesh.points[:, :2]
 
 writer = imageio.get_writer(VIDEO_OUT, fps=12)
 
 for t in frames:
-    mesh = pv.read(f"{MESH_DIR}/sim_{t}.vtu")
+    mesh = pv.read(f"{MESH_DIR}/sim_{t - TIF_START + VTU_START}.vtu")
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
 
     stack = tifffile.imread(f"{TIF_DIR}/T_{t}.tif")

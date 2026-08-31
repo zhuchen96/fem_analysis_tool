@@ -19,13 +19,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
 
-from config import SPACING_XY, T_START, FIT_WINDOW, RESULT_DIR
-from _dataset import vtu_frame_count
+from config import SPACING_XY, T_START, FIT_WINDOW, RESULT_DIR, TIF_START, VTU_START
+from _dataset import vtu_frame_count, tif_frame_count
 
 OUT_DIR = f"{RESULT_DIR}/groups_by_midline"
 os.makedirs(OUT_DIR, exist_ok=True)
 
-LAST_FRAME = vtu_frame_count()
+LAST_FRAME = min(tif_frame_count(), vtu_frame_count() + TIF_START - VTU_START)
 
 d = np.load(f"{RESULT_DIR}/tracked_points_backward_v2.npz")
 traj_xy = d["traj_xy"]
