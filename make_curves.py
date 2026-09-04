@@ -7,9 +7,10 @@ every mesh node in each region, then produces:
         neuromast_left.csv    -- one row per (frame, point): frame,point_id,x,y,z
         neuromast_right.csv
         whole_neuromast.csv
-        reference.csv
+        front.csv
+        middle.csv
     result_sampleN/curves_solution.png
-        -- 3-panel figure (x / y / z vs time), four curves per panel
+        -- 3-panel figure (x / y / z vs time), five curves per panel
            (one per region), each curve is mean ± shaded std
 
 Repeated for both "solution" and "pk1_stess_3".
@@ -28,18 +29,20 @@ from config import (MESH_DIR, RESULT_DIR, T_START, SEED_FRAME,
                     TIF_START, VTU_START)
 
 FIELDS = ["solution", "pk1_stess_3"]
-REGIONS = ["neuromast_left", "neuromast_right", "whole_neuromast", "reference"]
+REGIONS = ["neuromast_left", "neuromast_right", "whole_neuromast", "front", "middle"]
 REGION_LABEL = {
     "neuromast_left":  "neuromast, left",
     "neuromast_right": "neuromast, right",
     "whole_neuromast": "whole neuromast",
-    "reference":       "reference tissue",
+    "front":           "front",
+    "middle":          "middle",
 }
 REGION_COLOR = {
     "neuromast_left":  "dodgerblue",
     "neuromast_right": "darkorange",
     "whole_neuromast": "green",
-    "reference":       "crimson",
+    "front":           "crimson",
+    "middle":          "mediumpurple",
 }
 AXES_NAMES = ["x", "y", "z"]
 EXPANDED = False
@@ -78,12 +81,13 @@ for field in FIELDS:
                   + np.asarray(mesh.point_data["solution"])[:, :2])
         field_vals = np.asarray(mesh.point_data[field])   # (n_points, 3)
 
-        left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
+        left, right, front, middle = get_regions(t, cur_xy, expanded=EXPANDED)
         ids_of = {
             "neuromast_left":  left,
             "neuromast_right": right,
             "whole_neuromast": np.concatenate([left, right]),
-            "reference":       ref,
+            "front":           front,
+            "middle":          middle,
         }
 
         frame_list.append(t)
@@ -111,7 +115,7 @@ for field in FIELDS:
     for fh in csv_handles.values():
         fh.close()
 
-    # --- figure: 3 rows (x / y / z), 4 curves per panel ---
+    # --- figure: 3 rows (x / y / z), 5 curves per panel ---
     frame_arr = np.array(frame_list)
     fig, axs = plt.subplots(3, 1, figsize=(12, 9), sharex=True)
 

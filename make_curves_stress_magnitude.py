@@ -1,14 +1,15 @@
 """
 Computes the magnitude of the pk1_stess_3 vector (|stress|) at every mesh
 node for each frame in [T_START, SEED_FRAME], then plots mean ± std over
-time for all four regions.
+time for all five regions.
 
 Outputs:
   result_sampleN/curves_pk1_stess_3/
       magnitude_neuromast_left.csv    frame, point_id, magnitude
       magnitude_neuromast_right.csv
       magnitude_whole_neuromast.csv
-      magnitude_reference.csv
+      magnitude_front.csv
+      magnitude_middle.csv
   result_sampleN/curves_pk1_stess_3_magnitude.png
 """
 import os
@@ -26,18 +27,20 @@ from config import (MESH_DIR, RESULT_DIR, T_START, SEED_FRAME,
 FIELD = "pk1_stess_3"
 EXPANDED = False
 
-REGIONS = ["neuromast_left", "neuromast_right", "whole_neuromast", "reference"]
+REGIONS = ["neuromast_left", "neuromast_right", "whole_neuromast", "front", "middle"]
 REGION_LABEL = {
     "neuromast_left":  "neuromast, left",
     "neuromast_right": "neuromast, right",
     "whole_neuromast": "whole neuromast",
-    "reference":       "reference tissue",
+    "front":           "front",
+    "middle":          "middle",
 }
 REGION_COLOR = {
     "neuromast_left":  "dodgerblue",
     "neuromast_right": "darkorange",
     "whole_neuromast": "green",
-    "reference":       "crimson",
+    "front":           "crimson",
+    "middle":          "mediumpurple",
 }
 
 out_dir = f"{RESULT_DIR}/curves_{FIELD}"
@@ -71,12 +74,13 @@ for t in frames:
     field_vals = np.asarray(mesh.point_data[FIELD])          # (n_points, 3)
     magnitudes = np.linalg.norm(field_vals, axis=1)          # (n_points,)
 
-    left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
+    left, right, front, middle = get_regions(t, cur_xy, expanded=EXPANDED)
     ids_of = {
         "neuromast_left":  left,
         "neuromast_right": right,
         "whole_neuromast": np.concatenate([left, right]),
-        "reference":       ref,
+        "front":           front,
+        "middle":          middle,
     }
 
     frame_list.append(t)

@@ -48,7 +48,7 @@ for t in frames:
     mesh = pv.read(f"{MESH_DIR}/sim_{t - TIF_START + VTU_START}.vtu")
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
 
-    left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
+    left, right, front, middle = get_regions(t, cur_xy, expanded=EXPANDED)
     control_xy = cur_xy[control_ids]
 
     stack = tifffile.imread(f"{TIF_DIR}/T_{t}.tif")
@@ -61,7 +61,8 @@ for t in frames:
     ax.scatter(control_xy[:, 0], control_xy[:, 1], s=1.0, c="yellow", alpha=0.25, linewidths=0)
     ax.scatter(cur_xy[left, 0], cur_xy[left, 1], s=1.5, c="dodgerblue", alpha=0.8, linewidths=0)
     ax.scatter(cur_xy[right, 0], cur_xy[right, 1], s=1.5, c="darkorange", alpha=0.8, linewidths=0)
-    ax.scatter(cur_xy[ref, 0], cur_xy[ref, 1], s=1.5, c="crimson", alpha=0.8, linewidths=0)
+    ax.scatter(cur_xy[middle, 0], cur_xy[middle, 1], s=1.5, c="mediumpurple", alpha=0.8, linewidths=0)
+    ax.scatter(cur_xy[front, 0], cur_xy[front, 1], s=1.5, c="crimson", alpha=0.8, linewidths=0)
 
     mid_x = mid_x_of[t]
     ax.axvspan(mid_x, mid_x + GAP_UM, color="magenta", alpha=0.2, zorder=0.5)
@@ -84,7 +85,7 @@ for t in frames:
     ax.set_title(
         f"t={t}  |  expanded mask  |  apical point at {apical_x:.1f}um (cyan)  |  "
         f"midline at {mid_x:.1f} +/- {GAP_UM:.1f}um (white)\n"
-        f"neuromast_left={len(left)}  neuromast_right={len(right)}  reference={len(ref)}  control={len(control_ids)}",
+        f"neuromast_left={len(left)}  neuromast_right={len(right)}  front={len(front)}  middle={len(middle)}  control={len(control_ids)}",
         fontsize=9,
     )
     fig.tight_layout()
@@ -95,7 +96,7 @@ for t in frames:
     writer.append_data(imageio.imread(frame_path))
 
     if t % 20 == 0 or t == frames[0] or t == frames[-1]:
-        print(f"t={t}: neuromast_left={len(left)} neuromast_right={len(right)} reference={len(ref)}")
+        print(f"t={t}: neuromast_left={len(left)} neuromast_right={len(right)} front={len(front)} middle={len(middle)}")
 
 writer.close()
 print(f"wrote {VIDEO_OUT}")

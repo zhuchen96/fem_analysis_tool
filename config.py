@@ -1,6 +1,6 @@
 import glob as _glob, re as _re
 
-SAMPLE_ID  = 2
+SAMPLE_ID  = 1
 SPACING_XY = 0.325  # micron per pixel — straight from the microscope / acquisition metadata
 
 MESH_DIR   = f"vtu_files_sample{SAMPLE_ID}"
@@ -34,10 +34,10 @@ VTU_START = _first_index(f"{MESH_DIR}/sim_*.vtu") # first VTU file number (may d
 # Order matters: point 0 must be the one further toward the reference side
 # (larger x), point 1 the one further toward the neuromast side (smaller
 # x) - 04_build_midline.py checks this and will warn you if it looks wrong.
-SEED_FRAME = 206
+SEED_FRAME = 204
 SEED_POINTS_XY = [
-    (884, 183),  # reference-side landmark
-    (601, 189),  # neuromast-side landmark -> becomes the apical point
+    (869, 181),  # reference-side landmark
+    (594, 186),  # neuromast-side landmark -> becomes the apical point
 ]
 
 # the earliest frame to trust the tracked landmarks at all. Early in a

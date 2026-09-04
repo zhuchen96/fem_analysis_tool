@@ -42,8 +42,8 @@ for t in frames:
     mesh = pv.read(f"{MESH_DIR}/sim_{t - TIF_START + VTU_START}.vtu")
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
 
-    left, right, ref = get_regions(t, cur_xy, expanded=False)
-    tissue = np.concatenate([left, right, ref])
+    left, right, front, middle = get_regions(t, cur_xy, expanded=False)
+    tissue = np.concatenate([left, right, front, middle])
     cx.append(cur_xy[tissue, 0].mean())
     cy.append(cur_xy[tissue, 1].mean())
 

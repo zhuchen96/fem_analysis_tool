@@ -28,11 +28,12 @@ VIDEO_OUT = f"{RESULT_DIR}/vector_arrows_solution.mp4"
 FIELD = "solution"
 EXPANDED = False
 
-REGIONS = ["neuromast_left", "neuromast_right", "reference", "whole_neuromast"]
+REGIONS = ["neuromast_left", "neuromast_right", "front", "middle", "whole_neuromast"]
 REGION_LABEL = {
     "neuromast_left": "neuromast, left",
     "neuromast_right": "neuromast, right",
-    "reference": "reference tissue",
+    "front": "front",
+    "middle": "middle",
     "whole_neuromast": "whole neuromast",
 }
 AXES = ["x", "y", "z"]
@@ -54,8 +55,9 @@ for t in frames:
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
     field = np.asarray(mesh.point_data[FIELD])
 
-    left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
-    ids_of = {"neuromast_left": left, "neuromast_right": right, "reference": ref,
+    left, right, front, middle = get_regions(t, cur_xy, expanded=EXPANDED)
+    ids_of = {"neuromast_left": left, "neuromast_right": right,
+              "front": front, "middle": middle,
               "whole_neuromast": np.concatenate([left, right])}
 
     for r in REGIONS:
@@ -85,7 +87,7 @@ print(f"computed axis limits for {FIELD}: "
 writer = imageio.get_writer(VIDEO_OUT, fps=12)
 for i, t in enumerate(frames):
     t = int(t)
-    fig, axes = plt.subplots(4, 3, figsize=(12, 12))
+    fig, axes = plt.subplots(5, 3, figsize=(12, 15))
     for row, r in enumerate(REGIONS):
         for col, a in enumerate(AXES):
             ax = axes[row, col]

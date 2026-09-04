@@ -23,11 +23,12 @@ FIELD = "pk1_stess_3"
 EXPANDED = False
 N_BINS = 24
 
-REGIONS = ["neuromast_left", "neuromast_right", "reference", "whole_neuromast"]
+REGIONS = ["neuromast_left", "neuromast_right", "front", "middle", "whole_neuromast"]
 REGION_LABEL = {
     "neuromast_left": "neuromast, left",
     "neuromast_right": "neuromast, right",
-    "reference": "reference tissue",
+    "front": "front",
+    "middle": "middle",
     "whole_neuromast": "whole neuromast",
 }
 PLANES = [("M vs P", 0, 1), ("M vs Z", 0, 2), ("P vs Z", 1, 2)]
@@ -60,13 +61,14 @@ for t in frames:
     cur_xy = ref_xy + np.asarray(mesh.point_data["growth"])[:, :2] + np.asarray(mesh.point_data["solution"])[:, :2]
     field_mig = to_migration_frame(np.asarray(mesh.point_data[FIELD]))
 
-    left, right, ref = get_regions(t, cur_xy, expanded=EXPANDED)
+    left, right, front, middle = get_regions(t, cur_xy, expanded=EXPANDED)
     cur_ids = {"neuromast_left": np.array(sorted(left), dtype=int),
                "neuromast_right": np.array(sorted(right), dtype=int),
-               "reference": np.array(sorted(ref), dtype=int)}
+               "front": np.array(sorted(front), dtype=int),
+               "middle": np.array(sorted(middle), dtype=int)}
     cur_ids["whole_neuromast"] = np.concatenate([cur_ids["neuromast_left"], cur_ids["neuromast_right"]])
 
-    fig, axes = plt.subplots(4, 3, subplot_kw={"projection": "polar"}, figsize=(12, 15))
+    fig, axes = plt.subplots(5, 3, subplot_kw={"projection": "polar"}, figsize=(12, 19))
     for row, r in enumerate(REGIONS):
         ids = cur_ids[r]
         vecs = field_mig[ids] if len(ids) else np.zeros((0, 3))
