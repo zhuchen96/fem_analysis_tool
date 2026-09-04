@@ -10,7 +10,7 @@ The four regions, in terms of a point's current (deformed) x position:
     neuromast_right  - between the apical point and the midline (apical_x ≤ x < mid_x)
     neuromast_left   - same width as the right part, mirrored left of the apical point
                        (2*apical_x - mid_x ≤ x < apical_x)
-    front            - the rightmost REF_FRONT_UM (20 µm) of the reference tissue,
+    front            - the rightmost FRONT_WIDTH_UM (set in config.py) of the reference tissue,
                        anchored to the optical tissue tip (mask tip):
                            boundary = mask_tip_x − REF_FRONT_UM
                        where mask_tip_x is the rightmost foreground pixel in the
@@ -39,10 +39,10 @@ get_regions() for the second one.
 import numpy as np
 from skimage.morphology import binary_dilation, disk
 
-from config import RESULT_DIR, SPACING_XY, TIF_START
+from config import RESULT_DIR, SPACING_XY, TIF_START, FRONT_WIDTH_UM
 
-GAP_UM = 20 * SPACING_XY  # ~6.5um, the midline dead zone (20px, chosen early on and kept ever since)
-REF_FRONT_UM = 20.0        # width of the "front" tip sub-region (µm)
+GAP_UM = 20 * SPACING_XY          # ~6.5um, the midline dead zone
+REF_FRONT_UM = FRONT_WIDTH_UM     # width of the "front" tip sub-region (µm)
 MARGIN_UM = 5.0
 MARGIN_PX = int(round(MARGIN_UM / SPACING_XY))
 

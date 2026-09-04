@@ -55,6 +55,10 @@ T_START = 55
 # default and rarely needs touching.
 FIT_WINDOW = 20
 
+# --- front/middle boundary --------------------------------------------------
+#
+FRONT_WIDTH_UM = 40.0
+
 # --- vector video axis limits -----------------------------------------------
 #
 # Each axis (x, y, z) gets its own symmetric limit for the arrow plots.
